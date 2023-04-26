@@ -12,7 +12,7 @@ Will perform the following steps:
 3- Use fastq-join to join and assemble paired-end reads
 4- convert files from fastq to fasta
 
-### format_dbl_tables.py ###
+#### format_dbl_tables.py ####
 
 A python script used to compare results of DBLa amplicon sequencing data from multiple batches.
 
