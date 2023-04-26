@@ -45,8 +45,6 @@ write_fasta_from_dict(seqdict, "sequences_unclustered.fasta")
 
 reverse_seqdict = {v: k for k, v in seqdict.items()}
 
-print(reverse_seqdict)
-
 ### Cluster the sequences and create a dictionary based on their similarities
 
 cmd = ['cd-hit', '-i', 'sequences_unclustered.fasta', '-o', 'output.fasta', '-c', '0.95']
@@ -81,8 +79,6 @@ reverse_dbl_dict = {}
 for k, v in dbl_dict.items():
     for item in v:
         reverse_dbl_dict[item] = k
-
-print(reverse_dbl_dict)
 
 ### Use pandas to update the sequence column and give a unique dbla ID
 
