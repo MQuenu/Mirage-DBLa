@@ -16,6 +16,6 @@ Will perform the following steps:
 
 A python script used to compare results of DBLa amplicon sequencing data from multiple batches.
 
-Usage: python format_dbl_tables.py Varia_table.csv
+Usage: $python format_dbl_tables.py Varia_table.csv
 
 The script will format a csv table containing nucleotide sequences of DBLa clusters, cluster the sequences with a 95% similarity index together (using CDhit) and output a table with newly-generated DBL IDs. See Varia_table.csv for an example of input table, generated from the excel result file of Varia GEM.
