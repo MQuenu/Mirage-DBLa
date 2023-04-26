@@ -11,3 +11,9 @@ Will perform the following steps:
 2- Use trimmomatic to trim out first 23bp and poor quality bases
 3- Use fastq-join to join and assemble paired-end reads
 4- convert files from fastq to fasta
+
+### format_dbl_tables.py ###
+
+Usage: python format_dbl_tables.py Varia_table.csv
+
+A python script used to compare results of DBLa amplicon sequencing data from multiple batches. It will format a csv table containing nucleotide sequences of DBLa clusters, cluster the sequences with a 95% similarity index together (using CDhit) and output a table with newly-generated DBL IDs. See Varia_table.csv for an example of input table, generated from the excel result file of Varia GEM.
