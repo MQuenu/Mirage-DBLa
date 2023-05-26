@@ -30,4 +30,4 @@ A R script used to parse and syntetise information coming from Varia GEM result 
 
 Usage: 
 
-```Rscript Varia_excel_parser.R```
+```Rscript Varia_excel_parser.R <Varia excel results>```
