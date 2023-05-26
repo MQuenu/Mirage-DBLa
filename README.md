@@ -16,7 +16,7 @@ Will perform the following steps:
 
 #### format_dbl_tables.py ####
 
-A python script used to compare results of DBLa amplicon sequencing data from multiple batches.
+A python script used to compare results of different Varia GEM runs.
 
 Usage: 
 
