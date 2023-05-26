@@ -71,7 +71,7 @@ for record in clusters:
 dbl_dict = {}
 
 for i in range(len(cluster_lists_ids)):
-    id_key = "DBL" + str(i+1)
+    id_key = "tag-" + str(i+1)
     dbl_dict[id_key] = cluster_lists_ids[i]
 
 reverse_dbl_dict = {}
@@ -87,6 +87,6 @@ df = pd.read_csv(Input_table)
 df['sequence'] = df['sequence'].str.upper()
 df['sequence'] = df['sequence'].map(reverse_seqdict)
 df['sequence'] = df['sequence'].map(reverse_dbl_dict)
-df = df.rename(columns={'Id':'month','sequence': 'Dbl_id'})
+df = df.rename(columns={'Id':'month','sequence': 'DBL_tag'})
 
 df.to_csv('formatted_table.txt', sep='\t', index=False)
