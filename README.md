@@ -20,7 +20,7 @@ A python script used to compare results of DBLa amplicon sequencing data from mu
 
 Usage: 
 
-```bash python format_dbl_tables.py Varia_table.csv```
+```python format_dbl_tables.py Varia_table.csv```
 
 The script will format a csv table with a column containing nucleotide sequences of DBLa clusters, cluster the sequences with a 95% similarity index together (using CDhit) and output a table with newly-generated DBL IDs. See Varia_table.csv for an example of input table, generated from the excel result file of Varia GEM.
 
@@ -30,4 +30,4 @@ A R script used to parse and syntetise information coming from Varia GEM result 
 
 Usage: 
 
-```bash Rscript Varia_excel_parser.R```
+```Rscript Varia_excel_parser.R```
