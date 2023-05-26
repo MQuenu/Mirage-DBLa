@@ -6,7 +6,7 @@ A bash script used to clean up raw DBLa amplicon sequencing data. Uses fastqc v0
 
 Usage: 
 
-'''bash bash QCCleanup.sh <forward-reads.fastq> <reverse-reads.fastq>
+```bash QCCleanup.sh <forward-reads.fastq> <reverse-reads.fastq>```
 
 Will perform the following steps:
 1- Run FastQC on raw reads to assess read quality
@@ -20,7 +20,7 @@ A python script used to compare results of DBLa amplicon sequencing data from mu
 
 Usage: 
 
-'''bash python format_dbl_tables.py Varia_table.csv
+```bash python format_dbl_tables.py Varia_table.csv```
 
 The script will format a csv table with a column containing nucleotide sequences of DBLa clusters, cluster the sequences with a 95% similarity index together (using CDhit) and output a table with newly-generated DBL IDs. See Varia_table.csv for an example of input table, generated from the excel result file of Varia GEM.
 
@@ -29,4 +29,5 @@ The script will format a csv table with a column containing nucleotide sequences
 A R script used to parse and syntetise information coming from Varia GEM result output.
 
 Usage: 
-'''bash Rscript Varia_excel_parser.R
+
+```bash Rscript Varia_excel_parser.R```
