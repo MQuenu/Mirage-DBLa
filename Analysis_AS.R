@@ -217,7 +217,9 @@ rm(list = ls())
 DC01_m1_dataframe <- read.csv("ASformatted_table.txt", header = TRUE) %>%
   filter(sample == "DC01_m1")
 
-for (column in colnames(DC01_m1_dataframe)) {
+
+Extract_expression_domain <- function(entry_dataframe){
+for (column in colnames(entry_dataframe)) {
   domain <- substr(column, start = 1, stop = 6)
   if (domain == "Domain"){
     summary_df <- DC01_m1_dataframe %>%
@@ -234,3 +236,7 @@ for (column in colnames(DC01_m1_dataframe)) {
     }
     }
 }
+return(combined_data)
+}
+
+DC01_m1_domains <- Extract_expression_domain(DC01_m1_dataframe)
