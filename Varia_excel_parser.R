@@ -24,7 +24,7 @@ table_1 <- spreadsheet[start_index_1:(end_index_1-6),] %>%
   
 table_1 <- table_1[!is.na(table_1$Read_count),]
 
-table_2 <- spreadsheet[(start_index_2+1):ncol(spreadsheet),] %>%
+table_2 <- spreadsheet[(start_index_2+1):nrow(spreadsheet),] %>%
   setNames(.[1,]) %>%
   .[-1,] %>%
   .[,1:12]
