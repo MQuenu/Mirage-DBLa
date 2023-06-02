@@ -210,13 +210,9 @@ pvalue
 
 ### Looking at Domain composition of expressed var genes
 
-### DC01
+### functions
 
 rm(list = ls())
-
-DC01_m1_dataframe <- read.csv("ASformatted_table.txt", header = TRUE) %>%
-  filter(sample == "DC01_m1")
-
 
 Extract_expression_domain <- function(entry_dataframe){
 for (column in colnames(entry_dataframe)) {
@@ -236,7 +232,20 @@ for (column in colnames(entry_dataframe)) {
     }
     }
 }
+  combined_data <- combined_data %>%
+    mutate(first_character = substr(Expressed_Domain,1,1),
+           Domain_class = ifelse(first_character == "D" | first_character == "N",
+                                 substr(Expressed_Domain, start = 1, stop = 4),
+                                 substr(Expressed_Domain, start = 1, stop = 5))) %>%
+    select(Expressed_Domain, Total_read_count, Domain_class) %>%
+    filter(complete.cases(.))
 return(combined_data)
 }
 
+### DC01
+
+DC01_m1_dataframe <- read.csv("ASformatted_table.txt", header = TRUE) %>%
+  filter(sample == "DC01_m1")
+
 DC01_m1_domains <- Extract_expression_domain(DC01_m1_dataframe)
+
