@@ -1,6 +1,8 @@
 library(ggplot2)
+library(RColorBrewer)
 library(dplyr)
 library(entropy)
+library(gridExtra)
 
 setwd("~/DBLa/R_analysis")
 
@@ -106,11 +108,12 @@ plot_DC05 = ggplot(DC05_dataframe, aes(x = DBL_tag, y = Read_count, fill = NTS))
 
 plot_DC05
 
-DC08_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
+DC08_dataframe <- read.csv("ASformatted_table.txt", header = TRUE) %>%
+  mutate(NTS = substr(Domain1, 1, 4)) %>%
   filter(sample == "DC08_m2" | sample == "DC08_m3" |  sample == "DC08_m4" |
            sample == "DC08_m5" | sample == "DC08_m6")
 
-plot_DC08 = ggplot(DC08_dataframe, aes(x = DBL_tag, y = read_count)) +
+plot_DC08 = ggplot(DC08_dataframe, aes(x = DBL_tag, y = Read_count, fill = NTS)) +
   geom_col(width=0.7) +
   facet_wrap(~ sample, nrow = 5) +
   theme_minimal() +
@@ -218,7 +221,7 @@ Extract_expression_domain <- function(entry_dataframe){
 for (column in colnames(entry_dataframe)) {
   domain <- substr(column, start = 1, stop = 6)
   if (domain == "Domain"){
-    summary_df <- DC01_m1_dataframe %>%
+    summary_df <- entry_dataframe %>%
       group_by(.data[[column]]) %>%
       summarize(total_quantity = sum(Read_count)) 
     colnames(summary_df)[1] <- "Expressed_Domain"
@@ -234,12 +237,25 @@ for (column in colnames(entry_dataframe)) {
 }
   combined_data <- combined_data %>%
     mutate(first_character = substr(Expressed_Domain,1,1),
-           Domain_class = ifelse(first_character == "D" | first_character == "N",
+           Domain_subclass = ifelse(first_character == "D" | first_character == "N",
                                  substr(Expressed_Domain, start = 1, stop = 4),
-                                 substr(Expressed_Domain, start = 1, stop = 5))) %>%
-    select(Expressed_Domain, Total_read_count, Domain_class) %>%
-    filter(complete.cases(.))
+                                 substr(Expressed_Domain, start = 1, stop = 5)),
+           Domain_class = ifelse(first_character == "D" | first_character == "N",
+                                 substr(Expressed_Domain, start = 1, stop = 3),
+                                 substr(Expressed_Domain, start = 1, stop = 4))) %>%
+    select(Expressed_Domain, Total_read_count, Domain_class, Domain_subclass) %>%
+    filter(complete.cases(.)) %>%
+    filter(Domain_class != "NTS")
 return(combined_data)
+}
+
+plot_domains <- function(entry_domain_dataframe) {
+  palette <- brewer.pal(11, "Spectral")
+  plot <- ggplot(entry_domain_dataframe, aes(x = ID, y = Total_read_count, fill = Domain_subclass)) +
+    geom_bar(position="stack", stat="identity")+
+    scale_fill_manual(values = palette) +
+    theme_classic()
+  return(plot)
 }
 
 ### DC01
@@ -247,5 +263,33 @@ return(combined_data)
 DC01_m1_dataframe <- read.csv("ASformatted_table.txt", header = TRUE) %>%
   filter(sample == "DC01_m1")
 
-DC01_m1_domains <- Extract_expression_domain(DC01_m1_dataframe)
+DC01_m3_dataframe <- read.csv("ASformatted_table.txt", header = TRUE) %>%
+  filter(sample == "DC01_m3")
 
+DC01_m5_dataframe <- read.csv("ASformatted_table.txt", header = TRUE) %>%
+  filter(sample == "DC01_m5")
+
+DC01_m6_dataframe <- read.csv("ASformatted_table.txt", header = TRUE) %>%
+  filter(sample == "DC01_m6")
+
+DC01_m1_domains <- Extract_expression_domain(DC01_m1_dataframe) %>%
+  mutate(ID = "DC01_m1")
+
+DC01_m3_domains <- Extract_expression_domain(DC01_m3_dataframe) %>%
+  mutate(ID = "DC01_m3")
+
+DC01_m5_domains <- Extract_expression_domain(DC01_m5_dataframe) %>%
+  mutate(ID = "DC01_m5")
+
+DC01_m6_domains <- Extract_expression_domain(DC01_m6_dataframe) %>%
+  mutate(ID = "DC01_m6")
+
+plot_m1 <- plot_domains(DC01_m1_domains)
+
+plot_m3 <- plot_domains(DC01_m3_domains)
+
+plot_m5 <- plot_domains(DC01_m5_domains)
+
+plot_m6 <- plot_domains(DC01_m6_domains)
+
+grid.arrange(plot_m1, plot_m3, plot_m5, plot_m6, ncol=4, nrow = 1)
