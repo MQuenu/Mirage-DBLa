@@ -4,7 +4,7 @@ library(dplyr)
 library(entropy)
 library(gridExtra)
 
-setwd("~/DBLa/R_analysis")
+setwd("~/DBLa/R_analyses")
 
 rm(list = ls())
 
@@ -50,9 +50,9 @@ plot2
 
 rm(list = ls())
 
-DBL_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
+DBL_dataframe <- read.csv("ASformatted_table.txt", header = TRUE) %>%
   group_by(DBL_tag) %>%
-  summarise(total_reads = sum(read_count)) %>%
+  summarise(total_reads = sum(Read_count)) %>%
   arrange(desc(total_reads)) 
 
 barplot1 <- ggplot(data = DBL_dataframe, aes(x = reorder(DBL_tag,total_reads), y = total_reads)) + 
@@ -70,14 +70,13 @@ rm(list = ls())
 ## DC01 and DC04
 
 DC01_dataframe <- read.csv("ASformatted_table.txt", header = TRUE) %>%
-  mutate(NTS = substr(Domain1, 1, 4)) %>%
   filter(sample == "DC01_m1" | sample == "DC01_m3" |  sample == "DC01_m5" |
            sample == "DC01_m6")
 
 plot_DC01 = ggplot(DC01_dataframe, aes(x = DBL_tag, y = Read_count, fill = NTS)) +
   geom_col(width=0.7) +
   facet_wrap(~ sample, nrow = 5) +
-  theme_minimal() +
+  theme_classic() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 plot_DC01
@@ -122,9 +121,8 @@ plot_DC08 = ggplot(DC08_dataframe, aes(x = DBL_tag, y = Read_count, fill = NTS))
 plot_DC08
 
 DC07_dataframe <- read.csv("ASformatted_table.txt", header = TRUE) %>%
-  mutate(NTS = substr(Domain1, 1, 4)) %>%
   filter(sample == "DC07_m1" | sample == "DC07_m2" |  sample == "DC07_m3" |
-           sample == "DC07_m5" | sample == "DC0_m6")
+           sample == "DC07_m5" | sample == "DC07_m6")
 
 plot_DC07 = ggplot(DC07_dataframe, aes(x = DBL_tag, y = Read_count, fill = NTS)) +
   geom_col(width=0.7) +
@@ -211,6 +209,23 @@ pvalue <- pchisq(teststat, df = 1, lower.tail = FALSE)
 
 pvalue
 
+### Looking for tags that would be expressed twice in the same sample (false clustering)
+
+setwd("~/DBLa/R_analyses/false_clustering")
+
+doubled_dataframe <- read.csv("ASformatted_table.txt",header = TRUE) %>%
+  mutate(sample = substr(Sample_ID, start = 1, stop = 7)) %>%
+  group_by(sample) %>%
+  group_by(DBL_tag, add = TRUE) %>%
+  mutate(double_tag = ifelse(n() > 1, "doubled", "single")) %>%
+  ungroup() %>%
+  filter(Read_count > 1)
+
+#count the number of 'doubled' genes
+
+count_double_dataframe <- doubled_dataframe %>%
+  count(double_tag)
+
 ### Looking at Domain composition of expressed var genes
 
 ### functions
@@ -293,3 +308,26 @@ plot_m5 <- plot_domains(DC01_m5_domains)
 plot_m6 <- plot_domains(DC01_m6_domains)
 
 grid.arrange(plot_m1, plot_m3, plot_m5, plot_m6, ncol=4, nrow = 1)
+
+### Recurring DBLa genes analysis
+
+rm(list = ls())
+
+### Create a dataframe with a column for 'recurring' genes
+
+chronic_dataframe <- read.csv("ASformatted_table.txt",header = TRUE) %>%
+  mutate(infection_group = substr(sample, start = 1, stop = 2)) %>%
+  mutate(host = substr(sample, start = 1, stop = 4)) %>% 
+  subset(infection_group == "DC") %>%
+  group_by(host) %>%
+  group_by(DBL_tag, add = TRUE) %>%
+  mutate(recurrence = ifelse(n() > 1, "recurrent", "single")) %>%
+  mutate(expression = ifelse(Read_count < 9, "background", "expressed")) %>%
+  ungroup() %>%
+  filter(Read_count > 1)
+
+### Proportions of recurring and single genes over the total number of genes
+
+counts_recurrent_expressed <- chronic_dataframe %>%
+  filter(expression == "background") #%>%
+  filter(recurrence == "recurrent")
