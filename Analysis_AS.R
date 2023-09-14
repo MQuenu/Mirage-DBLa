@@ -8,72 +8,41 @@ setwd("~/DBLa/R_analyses")
 
 rm(list = ls())
 
-#### Correlation between the number of detected dbla and total read count / parasitaemia
+## format the input table, only do it once
 
-raw_df <- read.csv("ASformatted_table.txt") 
-
-write.csv(raw_df, "ASformatted_table.txt")
-
-parasitaemia_df <- read.csv("parasitaemia.csv", header= TRUE) %>%
-  mutate(Venous_parasitaemia = as.numeric(Venous_parasitaemia), Microscopy = as.numeric(Microscopy))
-
-nbdbl_df <- aggregate(DBL_tag ~ sample, data = raw_df, FUN = length)
-
-sample_df <- aggregate(Read_count ~ sample, data = raw_df, FUN = sum) 
-
-group_df <- aggregate(raw_df$group, by = list(raw_df$sample, raw_df$group), FUN = identity) %>%
-  select(-x) %>%
-  rename(sample = Group.1, group = Group.2)
-
-merged_df <- merge(nbdbl_df, sample_df) %>%
-  merge(group_df) %>%
-  left_join(parasitaemia_df, by = "sample")
-
-plot1 = ggplot(merged_df, aes(x = DBL_tag, y = read_count, color = group)) +
-  geom_point() +
-  xlab(label = "Number of DBLas") +
-  ylab(label = "Total read count") +
-  theme_classic()
-
-plot1
-
-plot2 = ggplot(merged_df, aes(x = Venous_parasitaemia, y = read_count, color = group)) +
-  geom_point() +
-  xlab(label = "Venous parasitaemia") +
-  ylab(label = "Total read count") +
-  #scale_x_log10() +
-  theme_classic()
-
-plot2
-
-#### Histogram of read_counts per DBLa tag
-
-rm(list = ls())
-
-DBL_dataframe <- read.csv("ASformatted_table.txt", header = TRUE) %>%
-  group_by(DBL_tag) %>%
-  summarise(total_reads = sum(Read_count)) %>%
-  arrange(desc(total_reads)) 
-
-barplot1 <- ggplot(data = DBL_dataframe, aes(x = reorder(DBL_tag,total_reads), y = total_reads)) + 
-  geom_col() + 
-  scale_y_log10() +
-  scale_x_discrete(labels = NULL) +
-  theme_classic()
-
-barplot1
+ASprocessed_df <- read.csv("ASformatted_table.csv") %>%
+  select(-X) %>%
+  mutate(NTS = substr(Domain1, start = 1, stop = 4),
+         Read_count = as.numeric(Read_count),
+         infection_group = substr(sample, start = 1, stop = 2),
+         host = substr(sample, start = 1, stop = 4)) %>% 
+  group_by(sample) %>%
+  mutate(total_reads = sum(Read_count)) %>%
+  ungroup() %>%
+  mutate(normalized_reads = Read_count / total_reads,
+         Dominant_tags = ifelse(normalized_reads > 0.1, "dominant", "low_expression")) %>%
+  group_by(sample) %>%
+  mutate(entropy = entropy(normalized_reads)) %>%
+  ungroup() %>%
+  group_by(host) %>%
+  group_by(Dominant_tags, .add = TRUE) %>%
+  group_by(DBL_tag, .add = TRUE) %>%
+  mutate(recurrence_step1 = ifelse(n() > 1, "recurrent", "single")) %>%
+  mutate(recurrence = ifelse(recurrence_step1 == 'recurrent' & Dominant_tags == 'dominant', 'recurrent', 'single')) %>%
+  ungroup() %>%
+  select(-recurrence_step1)
+  
+write.csv(ASprocessed_df, "ASformatted_table.csv")
 
 #### Plots of read counts per sample
 
-rm(list = ls())
+## DC01 
 
-## DC01 and DC04
+DC01_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
+  filter(sample == "DC01_m1" | sample == "DC01_m3" |  sample == "DC01_m4c" | 
+           sample == "DC01_m5" | sample == "DC01_m6")
 
-DC01_dataframe <- read.csv("ASformatted_table.txt", header = TRUE) %>%
-  filter(sample == "DC01_m1" | sample == "DC01_m3" |  sample == "DC01_m5" |
-           sample == "DC01_m6")
-
-plot_DC01 = ggplot(DC01_dataframe, aes(x = DBL_tag, y = Read_count, fill = NTS)) +
+plot_DC01 = ggplot(DC01_dataframe, aes(x = DBL_tag, y = normalized_reads, fill = NTS)) +
   geom_col(width=0.7) +
   facet_wrap(~ sample, nrow = 5) +
   theme_classic() +
@@ -81,100 +50,306 @@ plot_DC01 = ggplot(DC01_dataframe, aes(x = DBL_tag, y = Read_count, fill = NTS))
 
 plot_DC01
 
-DC04_dataframe <- read.csv("ASformatted_table.txt", header = TRUE) %>%
-  mutate(NTS = substr(Domain1, 1, 4)) %>%
-  filter(sample == "DC04_m2" | sample == "DC04_m3" |  sample == "DC04_m4" |
-           sample == "DC04_m5" | sample == "DC04_m6")
+## DC02
 
-plot_DC04 = ggplot(DC04_dataframe, aes(x = DBL_tag, y = Read_count, fill = NTS)) +
+DC02_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
+  filter(sample == "DC02_m1" | sample == "DC02_m2" |  sample == "DC02_m3" |
+           sample == "DC02_m4" | sample == "DC02_m5" | sample == "DC02_m6")
+
+plot_DC02 = ggplot(DC02_dataframe, aes(x = DBL_tag, y = normalized_reads, fill = NTS)) +
+  geom_col(width=0.7) +
+  facet_wrap(~ sample, nrow = 6) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+plot_DC02
+
+## DC03
+
+DC03_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
+  filter(sample == "DC03_m2" | sample == "DC03_m4" | sample == "DC03_m5" | 
+         sample == "DC03_m6")
+
+plot_DC03 = ggplot(DC03_dataframe, aes(x = DBL_tag, y = normalized_reads, fill = NTS)) +
   geom_col(width=0.7) +
   facet_wrap(~ sample, nrow = 5) +
-  theme_minimal() +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+plot_DC03
+
+## DC04
+
+DC04_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
+  mutate(NTS = substr(Domain1, 1, 4)) %>%
+  filter(sample == "DC04_m2" | sample == "DC04_m3" |  sample == "DC04_m4c" |
+           sample == "DC04_m5" | sample == "DC04_m6")
+
+plot_DC04 = ggplot(DC04_dataframe, aes(x = DBL_tag, y = normalized_reads, fill = NTS)) +
+  geom_col(width=0.7) +
+  facet_wrap(~ sample, nrow = 5) +
+  theme_classic() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 plot_DC04
 
-DC05_dataframe <- read.csv("ASformatted_table.txt", header = TRUE) %>%
-  mutate(NTS = substr(Domain1, 1, 4)) %>%
-  filter(sample == "DC05_m1" | sample == "DC05_m3" |  sample == "DC05_m5" |
-           sample == "DC05_m6")
+## DC05
 
-plot_DC05 = ggplot(DC05_dataframe, aes(x = DBL_tag, y = Read_count, fill = NTS)) +
+DC05_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
+  mutate(NTS = substr(Domain1, 1, 4)) %>%
+  filter(sample == "DC05_m1" | sample == "DC05_m2" |  sample == "DC05_m3" |
+           sample == "DC05_m4" | sample == "DC05_m5" | sample == "DC05_m6" )
+
+plot_DC05 = ggplot(DC05_dataframe, aes(x = DBL_tag, y = normalized_reads, fill = NTS)) +
   geom_col(width=0.7) +
-  facet_wrap(~ sample, nrow = 4) +
-  theme_minimal() +
+  facet_wrap(~ sample, nrow = 6) +
+  theme_classic() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 plot_DC05
 
-DC08_dataframe <- read.csv("ASformatted_table.txt", header = TRUE) %>%
-  mutate(NTS = substr(Domain1, 1, 4)) %>%
-  filter(sample == "DC08_m2" | sample == "DC08_m3" |  sample == "DC08_m4" |
-           sample == "DC08_m5" | sample == "DC08_m6")
+## DC06
 
-plot_DC08 = ggplot(DC08_dataframe, aes(x = DBL_tag, y = Read_count, fill = NTS)) +
+DC06_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
+  mutate(NTS = substr(Domain1, 1, 4)) %>%
+  filter(sample == "DC06_m1" | sample == "DC06_m6")
+
+plot_DC06 = ggplot(DC06_dataframe, aes(x = DBL_tag, y = normalized_reads, fill = NTS)) +
   geom_col(width=0.7) +
-  facet_wrap(~ sample, nrow = 5) +
-  theme_minimal() +
+  facet_wrap(~ sample, nrow = 2) +
+  theme_classic() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-plot_DC08
+plot_DC06
 
-DC07_dataframe <- read.csv("ASformatted_table.txt", header = TRUE) %>%
+## DC07
+
+DC07_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
+  mutate(NTS = substr(Domain1, 1, 4)) %>%
   filter(sample == "DC07_m1" | sample == "DC07_m2" |  sample == "DC07_m3" |
-           sample == "DC07_m5" | sample == "DC07_m6")
+         sample == "DC07_m5" | sample == "DC07_m6")
 
-plot_DC07 = ggplot(DC07_dataframe, aes(x = DBL_tag, y = Read_count, fill = NTS)) +
+plot_DC07 = ggplot(DC07_dataframe, aes(x = DBL_tag, y = normalized_reads, fill = NTS)) +
   geom_col(width=0.7) +
   facet_wrap(~ sample, nrow = 5) +
-  theme_minimal() +
+  theme_classic() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 plot_DC07
 
+## DC08
+
+DC08_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
+  filter(sample == "DC08_m2" | sample == "DC08_m3" |  sample == "DC08_m4" |
+           sample == "DC08_m5" | sample == "DC08_m6")
+
+plot_DC08 = ggplot(DC08_dataframe, aes(x = DBL_tag, y = normalized_reads, fill = NTS)) +
+  geom_col(width=0.7) +
+  facet_wrap(~ sample, nrow = 6) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+plot_DC08
+
+## DC09
+
+DC09_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
+  mutate(NTS = substr(Domain1, 1, 4)) %>%
+  filter(sample == "DC09_m2" | sample == "DC09_m3" |  sample == "DC09_m4" |
+           sample == "DC09_m5 ")
+
+plot_DC09 = ggplot(DC09_dataframe, aes(x = DBL_tag, y = normalized_reads, fill = NTS)) +
+  geom_col(width=0.7) +
+  facet_wrap(~ sample, nrow = 5) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+plot_DC09
+
+## DC10
+
+DC10_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
+  mutate(NTS = substr(Domain1, 1, 4)) %>%
+  filter(sample == "DC10_m2" | sample == "DC10_m3")
+
+plot_DC10 = ggplot(DC10_dataframe, aes(x = DBL_tag, y = normalized_reads, fill = NTS)) +
+  geom_col(width=0.7) +
+  facet_wrap(~ sample, nrow = 5) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+plot_DC10
+
+## DC11
+
+DC11_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
+  mutate(NTS = substr(Domain1, 1, 4)) %>%
+  filter(sample == "DC11_m1" | sample == "DC11_m2" |  sample == "DC11_m4" |
+           sample == "DC11_m5" | sample == "DC11_m6")
+
+plot_DC11 = ggplot(DC11_dataframe, aes(x = DBL_tag, y = normalized_reads, fill = NTS)) +
+  geom_col(width=0.7) +
+  facet_wrap(~ sample, nrow = 5) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+plot_DC11
+
+## DC12
+
+DC12_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
+  mutate(NTS = substr(Domain1, 1, 4)) %>%
+  filter(sample == "DC12_m1" | sample == "DC12_m2" |  sample == "DC12_m4" |
+           sample == "DC12_m5" | sample == "DC12_m6")
+
+plot_DC12 = ggplot(DC12_dataframe, aes(x = DBL_tag, y = normalized_reads, fill = NTS)) +
+  geom_col(width=0.7) +
+  facet_wrap(~ sample, nrow = 5) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+plot_DC12
+
+## DC13
+
+DC13_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
+  mutate(NTS = substr(Domain1, 1, 4)) %>%
+  filter(sample == "DC13_m1" | sample == "DC13_m2" |  sample == "DC13_m3" |
+           sample == "DC13_m4" | sample == "DC13_m5")
+
+plot_DC13 = ggplot(DC13_dataframe, aes(x = DBL_tag, y = normalized_reads, fill = NTS)) +
+  geom_col(width=0.7) +
+  facet_wrap(~ sample, nrow = 5) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+plot_DC13
+
+## DC14
+
+DC14_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
+  mutate(NTS = substr(Domain1, 1, 4)) %>%
+  filter(sample == "DC14_m1" | sample == "DC14_m2" |  sample == "DC14_m3")
+
+plot_DC14 = ggplot(DC14_dataframe, aes(x = DBL_tag, y = normalized_reads, fill = NTS)) +
+  geom_col(width=0.7) +
+  facet_wrap(~ sample, nrow = 5) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+plot_DC14
+
+### DC15
+
+DC15_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
+  mutate(NTS = substr(Domain1, 1, 4)) %>%
+  filter(sample == "DC15_m2")
+
+plot_DC15 = ggplot(DC15_dataframe, aes(x = DBL_tag, y = normalized_reads, fill = NTS)) +
+  geom_col(width=0.7) +
+  facet_wrap(~ sample, nrow = 5) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+plot_DC15
+
+### DC15
+
+DC16_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
+  mutate(NTS = substr(Domain1, 1, 4)) %>%
+  filter(sample == "DC16_m1")
+
+plot_DC16 = ggplot(DC16_dataframe, aes(x = DBL_tag, y = normalized_reads, fill = NTS)) +
+  geom_col(width=0.7) +
+  facet_wrap(~ sample, nrow = 5) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+plot_DC16
+
+
 ## WS
 
-WS1_dataframe <- read.table("ASformatted_table.txt", header = TRUE) %>%
+WS1_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
   filter(sample == "WS05" | sample == "WS06" |  sample == "WS07" |
            sample == "WS08"| sample == "WS09"| sample == "WS10")
 
-plot_WS1 = ggplot(WS1_dataframe, aes(x = DBL_tag, y = read_count)) +
+plot_WS1 = ggplot(WS1_dataframe, aes(x = DBL_tag, y = normalized_reads, fill = NTS)) +
   geom_col(width=0.7) +
   facet_wrap(~ sample, nrow = 6) +
-  theme_minimal()
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 plot_WS1
 
-WS2_dataframe <- read.table("ASformatted_table.txt", header = TRUE) %>%
-  filter(sample == "WS10" | sample == "WS11" |  sample == "WS12" |
-           sample == "WS13"| sample == "WS14"| sample == "WS15")
 
-plot_WS2 = ggplot(WS2_dataframe, aes(x = DBL_tag, y = read_count)) +
+WS2_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
+  filter(sample == "WS11" |  sample == "WS12" |
+          sample == "WS13"| sample == "WS14"| sample == "WS15")
+
+plot_WS2 = ggplot(WS2_dataframe, aes(x = DBL_tag, y = normalized_reads, fill = NTS)) +
   geom_col(width=0.7) +
-  facet_wrap(~ sample, nrow = 6) +
-  theme_minimal()
+  facet_wrap(~ sample, nrow = 5) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
+plot_WS2
 
-### comparison between batches
+## WA
 
-rm(list = ls())
+WA1_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
+  filter(sample == "WA05" |  sample == "WA06" |
+           sample == "WA07"| sample == "WA08"| sample == "WA09")
 
-setwd("~/Varia/DBLa/Results_processed/Batch_comparisons")
-
-batch_DC01m1_dataframe <- read.table("formatted_table.txt", header = TRUE)
-
-plot_batch_DC01m1 <- ggplot(data = batch_DC01m1_dataframe, aes(x = DBL_tag, y = read_count)) +
+plot_WA1 = ggplot(WA1_dataframe, aes(x = DBL_tag, y = normalized_reads, fill = NTS)) +
   geom_col(width=0.7) +
-  facet_wrap(~ batch, nrow = 6) +
-  theme_minimal()
+  facet_wrap(~ sample, nrow = 5) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-plot_batch_DC01m1
+plot_WA1
+
+WA2_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
+  filter(sample == "WA10" |  sample == "WA11" |
+           sample == "WA12"| sample == "WA13"| sample == "WA18")
+
+plot_WA2 = ggplot(WA2_dataframe, aes(x = DBL_tag, y = normalized_reads, fill = NTS)) +
+  geom_col(width=0.7) +
+  facet_wrap(~ sample, nrow = 5) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+plot_WA2
+
+WA3_dataframe <- read.csv("ASformatted_table.csv", header = TRUE) %>%
+  filter(sample == "WA36" |  sample == "WA37" |
+           sample == "WA38"| sample == "WA40"| sample == "WA46")
+
+plot_WA3 = ggplot(WA3_dataframe, aes(x = DBL_tag, y = normalized_reads, fill = NTS)) +
+  geom_col(width=0.7) +
+  facet_wrap(~ sample, nrow = 5) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+plot_WA3
+
+### Histogram of DBLa expressions
+
+df <- read.csv("ASformatted_table.csv", header = TRUE) 
+
+hist_normalized <- ggplot(df, aes(x = normalized_reads)) +
+  geom_histogram(binwidth = 0.01) +
+  geom_vline(xintercept = 0.1, linetype="dotted", color = "red", size=1) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+hist_normalized
 
 ### Look for shared DBLa
 
 rm(list = ls())
 
-raw_dataframe <- read.csv("ASformatted_table.txt", header = TRUE)
+raw_dataframe <- read.csv("ASformatted_table.csv", header = TRUE)
 
 count_dataframe <- raw_dataframe %>%
   group_by(DBL_tag) %>%
@@ -182,17 +357,15 @@ count_dataframe <- raw_dataframe %>%
 
 # look through count_dataframe interactively
 
-## Entropy by group
+## Entropy 
 
 rm(list = ls())
 
-raw_dataframe <- read.table("ASformatted_table.txt", header = TRUE) %>% 
-  group_by(sample) %>%
-  mutate(entropy = entropy(read_count))
+dataframe <- read.csv("ASformatted_table.csv", header = TRUE) 
 
-entropy_dataframe <- aggregate(entropy ~ sample + group, data = raw_dataframe, FUN = mean)
+entropy_dataframe <- aggregate(entropy ~ sample + infection_group, data = dataframe, FUN = mean)
 
-plot_entropy <- ggplot(entropy_dataframe, aes(x = group, y = entropy, fill = group)) +
+plot_entropy <- ggplot(entropy_dataframe, aes(x = infection_group, y = entropy, fill = infection_group)) +
   geom_boxplot() +
   geom_jitter() +
   scale_fill_brewer() +
@@ -200,8 +373,10 @@ plot_entropy <- ggplot(entropy_dataframe, aes(x = group, y = entropy, fill = gro
 
 plot_entropy
 
+### glm between the three infection groups
+
 null_model <- glm(entropy ~ 1, data = entropy_dataframe)
-linear_model <- glm(entropy ~ group, data = entropy_dataframe)
+linear_model <- glm(entropy ~ infection_group, data = entropy_dataframe)
 
 lrtest <- anova(null_model, linear_model)
 teststat <- lrtest[2, "Deviance"]
@@ -308,26 +483,3 @@ plot_m5 <- plot_domains(DC01_m5_domains)
 plot_m6 <- plot_domains(DC01_m6_domains)
 
 grid.arrange(plot_m1, plot_m3, plot_m5, plot_m6, ncol=4, nrow = 1)
-
-### Recurring DBLa genes analysis
-
-rm(list = ls())
-
-### Create a dataframe with a column for 'recurring' genes
-
-chronic_dataframe <- read.csv("ASformatted_table.txt",header = TRUE) %>%
-  mutate(infection_group = substr(sample, start = 1, stop = 2)) %>%
-  mutate(host = substr(sample, start = 1, stop = 4)) %>% 
-  subset(infection_group == "DC") %>%
-  group_by(host) %>%
-  group_by(DBL_tag, add = TRUE) %>%
-  mutate(recurrence = ifelse(n() > 1, "recurrent", "single")) %>%
-  mutate(expression = ifelse(Read_count < 9, "background", "expressed")) %>%
-  ungroup() %>%
-  filter(Read_count > 1)
-
-### Proportions of recurring and single genes over the total number of genes
-
-counts_recurrent_expressed <- chronic_dataframe %>%
-  filter(expression == "background") #%>%
-  filter(recurrence == "recurrent")
