@@ -14,7 +14,7 @@ Will perform the following steps:
 3- Use fastq-join to join and assemble paired-end reads
 4- convert files from fastq to fasta
 
-#### format_dbl_tables.py ####
+#### tag_sequences.py ####
 
 A python script used to compare results of different Varia GEM runs.
 
