@@ -16,13 +16,15 @@ Will perform the following steps:
 
 #### tag_sequences.py ####
 
-A python script used to compare results of different Varia GEM runs.
+A python script used to compare results of different Varia GEM runs, and generate DBLa-'tags' that are used to identify shared DBLa sequences across different runs.
 
 Usage: 
 
 ```python format_dbl_tables.py Varia_table.csv```
 
-The script will format a csv table with a column containing nucleotide sequences of DBLa clusters, cluster the sequences with a 95% similarity index together (using CDhit) and output a table with newly-generated DBL IDs. See Varia_table.csv for an example of input table, generated from the excel result file of Varia GEM.
+The script will format a csv table with a column containing nucleotide sequences of DBLa clusters, cluster the sequences with a 95% similarity index together (using CDhit) and output a table with newly-generated DBL IDs. See Varia_table.csv for an example of input table, generated from the excel result file of Varia GEM. 
+
+Note: be sure to have the consensus cluster sequence as row '4' in the input dataframe when running the script
 
 #### Varia_excel_parser.R ####
 
