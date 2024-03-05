@@ -1,6 +1,6 @@
 # Mirage-DBLa
 
-This github repository contains an ensemble of scripts that I have created and used in the analysis of DBLa amplicon sequencing data. It is linked to data that has not been published yet.
+This github repository contains an ensemble of scripts that I have created and used in the analysis of DBLa amplicon sequencing data. It is linked to a longitudinal study of chronic asymptomatic malaria that has not been published yet.
 
 ##### QCCleanup.sh #####
 
