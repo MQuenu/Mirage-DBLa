@@ -30,7 +30,9 @@ Usage:
 
 #### tag_sequences.py ####
 
-This python script is used to compare the outputs of different runs of Varia GEM - identify clusters of DBLa common across two different samples. In our longitudinal 
+This python script is used to compare the outputs of different runs of Varia GEM - identify clusters of DBLa common across two different samples. 
+
+Requires Pandas and bipython.
 
 Usage: 
 
