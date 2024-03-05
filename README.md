@@ -45,7 +45,7 @@ Note: the input table can include any metadata that you want and have any number
 
 #### Pipeline_mapping_dbla_genomes.sh ####
 
-This script can be used to map amplicon DBLa reads to a genome fasta file. Use the fasta output of QCcleanup.sh as an input file fo the input amplicon sequences.
+This script can be used to map amplicon DBLa reads to a reference genome fasta file. Use the fasta output of QCcleanup.sh as an input file fo the input amplicon sequences.
 
 Usage:
 
