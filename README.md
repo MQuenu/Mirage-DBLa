@@ -28,7 +28,7 @@ Note: be sure to have the consensus cluster sequence as row '4' in the input dat
 
 #### Varia_excel_parser.R ####
 
-A R script used to parse the Varia GEM result output into a single tab-delimited file
+A R script used to parse the Varia GEM excel spreadsheet into a single tab-delimited file
 
 Usage: 
 
