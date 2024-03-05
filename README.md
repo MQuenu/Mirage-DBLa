@@ -43,3 +43,10 @@ The script takes into input a csv table with a column containing the consensus n
 Note: the input table can include any metadata that you want and have any number of columns, just be sure to have the consensus cluster sequence as row '4' in the input dataframe when running the script
 
 
+#### Pipeline_mapping_dbla_genomes.sh ####
+
+This script can be used to map amplicon DBLa reads to a genome fasta file. Use the fasta output of QCcleanup.sh as an input file fo the input amplicon sequences.
+
+Usage:
+
+```bash Pipeline_mapping_dbla_genomes.sh <fasta_genome> <fasta_dbla_sequences>```
