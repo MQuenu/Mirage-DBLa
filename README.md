@@ -32,7 +32,7 @@ Usage:
 
 This python script is used to compare the outputs of different runs of Varia GEM - identify clusters of DBLa common across two different samples. 
 
-Requires Pandas and bipython.
+Requires Pandas and biopython to be installed in your environment.
 
 Usage: 
 
