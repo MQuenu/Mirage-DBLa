@@ -11,10 +11,14 @@ Usage:
 ```bash QCCleanup.sh <forward-reads.fastq> <reverse-reads.fastq>```
 
 Will perform the following steps:
-1- Run FastQC on raw reads to assess read quality \n
-2- Use trimmomatic to trim out first 23bp and poor quality bases \n
-3- Use fastq-join to join and assemble paired-end reads \n
-4- convert files from fastq to fasta \n
+
+1- Run FastQC on raw reads to assess read quality 
+
+2- Use trimmomatic to trim out first 23bp and poor quality bases 
+
+3- Use fastq-join to join and assemble paired-end reads 
+
+4- convert files from fastq to fasta 
 
 #### Varia_excel_parser.R ####
 
