@@ -1,3 +1,5 @@
+#!/bin/bash
+
 input_genome=$1
 input_dbla_sequences=$2
 prefix_ID="${input_genome:0:7}" 
