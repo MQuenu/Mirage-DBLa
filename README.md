@@ -40,6 +40,8 @@ Usage:
 
 The script takes into input a csv table with a column containing the consensus nucleotide sequences of DBLa clusters. This table is typically a concatenation of different varia GEM outputs. The consensus sequences will here be clustered with a 95% similarity index (using CDhit) and the script outputs a table where those consensus sequences are replaced by newly-generated DBL tags IDs. See Varia_table.csv for an example of input table. 
 
+Also outputs a fasta file containing the tags ID and their associated sequences.
+
 Note: the input table can include any metadata that you want and have any number of columns, just be sure to have the consensus cluster sequence as row '4' in the input dataframe when running the script
 
 
