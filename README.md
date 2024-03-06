@@ -42,7 +42,7 @@ The script takes into input a csv table with a column containing the consensus n
 
 Also outputs a fasta file containing the tags ID and their associated sequences.
 
-Note: the input table can include any metadata that you want and have any number of columns, just be sure to have the consensus cluster sequence as row '4' in the input dataframe when running the script
+Note: the input table can include any metadata that you want and have any number of columns, just be sure to have the consensus cluster sequences as column '4' in the input dataframe when running the script
 
 
 #### Pipeline_mapping_dbla_genomes.sh ####
