@@ -1,6 +1,6 @@
 # Mirage-DBLa
 
-This github repository contains an ensemble of scripts that I have created and used in the analysis of DBLa amplicon sequencing data. It is linked to a longitudinal study of chronic asymptomatic malaria that has not been published yet.
+This github repository contains an ensemble of scripts I have created and used in the analysis of DBLa amplicon sequencing data. It is linked to a longitudinal study of chronic asymptomatic malaria that has not been published yet.
 
 ##### QCCleanup.sh #####
 
@@ -30,7 +30,7 @@ Usage:
 
 #### tag_sequences.py ####
 
-This python script is used to compare the outputs of different runs of Varia GEM - identify clusters of DBLa common across two different samples. 
+This python script is used to compare the outputs of different runs of Varia GEM - identify clusters of DBLa common across two different samples and attach identifyer 'tags' IDs to common sequences.
 
 Requires Pandas and biopython to be installed in your environment.
 
@@ -38,7 +38,7 @@ Usage:
 
 ```python format_dbl_tables.py Varia_table.csv```
 
-The script takes into input a csv table with a column containing the consensus nucleotide sequences of DBLa clusters. This table is typically a concatenation of different varia GEM outputs. The consensus sequences will here be clustered with a 95% similarity index (using CDhit) and output a table where those consensus sequences are replaced by newly-generated DBL tags IDs. See Varia_table.csv for an example of input table. 
+The script takes into input a csv table with a column containing the consensus nucleotide sequences of DBLa clusters. This table is typically a concatenation of different varia GEM outputs. The consensus sequences will here be clustered with a 95% similarity index (using CDhit) and the script outputs a table where those consensus sequences are replaced by newly-generated DBL tags IDs. See Varia_table.csv for an example of input table. 
 
 Note: the input table can include any metadata that you want and have any number of columns, just be sure to have the consensus cluster sequence as row '4' in the input dataframe when running the script
 
