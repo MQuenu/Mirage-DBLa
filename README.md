@@ -52,3 +52,7 @@ This script can be used to map amplicon DBLa reads to a reference genome fasta f
 Usage:
 
 ```bash Pipeline_mapping_dbla_genomes.sh <fasta_genome> <fasta_dbla_sequences>```
+
+#### Analysis_AS.R ####
+
+The Rscript containing the code for statistical analyses and figure generation. To use interactively in a IDE Rstudio type of environement.
