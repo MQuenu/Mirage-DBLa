@@ -55,4 +55,4 @@ Usage:
 
 #### Analysis_AS.R ####
 
-The Rscript containing the code for statistical analyses and figure generation. To use interactively in a IDE Rstudio type of environement.
+The Rscript containing the code for statistical analyses and figure generation. To use interactively in an IDE Rstudio / jupyter type of environement.
